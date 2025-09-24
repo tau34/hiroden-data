@@ -1,0 +1,83 @@
+const fs = require('fs');
+const path = require('path');
+const { JSDOM } = require('jsdom');
+
+async function fetchData() {
+  const url = "https://location.hiroden.co.jp/sp/search.cgi";
+  const body = "d=80&b=s4.html";
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Referer": "https://location.hiroden.co.jp/sp/search.cgi",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0",
+      },
+      body: body,
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const html = await response.text();
+    return html;
+
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return null;
+  }
+}
+
+function parseHtml(html) {
+  const dom = new JSDOM(html);
+  const document = dom.window.document;
+  const trainData = [];
+  const table = document.getElementById('kekka-table');
+
+  if (table) {
+    const rows = table.querySelectorAll('tr');
+    rows.forEach(row => {
+      const lineNum = row.querySelector('.lineNum')?.textContent.trim();
+      const tdContent = row.querySelector('td')?.textContent.trim();
+      const destination = tdContent.replace(lineNum, '').replace(/\s*行き.*/, '行き').trim();
+      const time = row.querySelector('.time')?.textContent.trim();
+      
+      if (lineNum && destination && time) {
+        trainData.push({
+          line: lineNum,
+          destination: destination,
+          time: time,
+        });
+      }
+    });
+  }
+  return trainData;
+}
+
+async function main() {
+  const html = await fetchData();
+  if (!html) {
+    console.log("No data fetched. Exiting.");
+    return;
+  }
+
+  const parsedData = parseHtml(html);
+  
+  const now = new Date();
+  const dateString = now.toISOString().slice(0, 10); // YYYY-MM-DD
+  const timeString = now.toISOString().slice(11, 19).replace(/:/g, '-'); // HH-MM-SS
+
+  const dirPath = path.join(__dirname, 'data', dateString);
+  const filePath = path.join(dirPath, `${timeString}.json`);
+
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+
+  fs.writeFileSync(filePath, JSON.stringify(parsedData, null, 2));
+  console.log(`Data saved to ${filePath}`);
+}
+
+main();
