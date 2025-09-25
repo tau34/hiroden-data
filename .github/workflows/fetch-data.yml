@@ -2,8 +2,7 @@ name: Fetch Hiroden Data
 
 on:
   schedule:
-    # ⚠️ 5分おきに実行されます（GitHubの仕様）
-    - cron: '*/5 * * * *'
+    - cron: '*/6 * * * *'
   workflow_dispatch:
 
 jobs:
