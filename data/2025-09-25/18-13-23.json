@@ -1,0 +1,42 @@
+[
+  {
+    "line": "6",
+    "destination": "広島駅行き\n18:17",
+    "time": "18:17"
+  },
+  {
+    "line": "2",
+    "destination": "広島駅行き\n18:19",
+    "time": "18:19"
+  },
+  {
+    "line": "1",
+    "destination": "広島駅行き\n18:21 【低床】",
+    "time": "18:21 【低床】"
+  },
+  {
+    "line": "2",
+    "destination": "広島駅行き\n18:22",
+    "time": "18:22"
+  },
+  {
+    "line": "6",
+    "destination": "広島駅行き\n18:27 【低床】",
+    "time": "18:27 【低床】"
+  },
+  {
+    "line": "1",
+    "destination": "広島駅行き\n18:29",
+    "time": "18:29"
+  },
+  {
+    "line": "2",
+    "destination": "広島駅行き\n18:31",
+    "time": "18:31"
+  },
+  {
+    "line": "6",
+    "destination": "広島駅行き\n18:31",
+    "time": "18:31"
+  }
+]
