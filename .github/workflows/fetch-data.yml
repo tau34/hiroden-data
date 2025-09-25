@@ -2,8 +2,8 @@ name: Fetch Hiroden Data
 
 on:
   schedule:
-    # ⚠️ デバッグ用: 1分おきに実行します
-    - cron: '* * * * *'
+    # ⚠️ 5分おきに実行されます（GitHubの仕様）
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -30,6 +30,8 @@ jobs:
         run: node fetch-and-save.js
 
       - name: Commit and Push Changes
+        env:
+          TZ: Asia/Tokyo # ここでタイムゾーンを日本時間に設定
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"

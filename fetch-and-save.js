@@ -65,9 +65,21 @@ async function main() {
 
   const parsedData = parseHtml(html);
   
+  // 日本時間を取得するための設定
   const now = new Date();
-  const dateString = now.toISOString().slice(0, 10); // YYYY-MM-DD
-  const timeString = now.toISOString().slice(11, 19).replace(/:/g, '-'); // HH-MM-SS
+  const options = { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+  const jstFormatter = new Intl.DateTimeFormat('ja-JP', options);
+  const parts = jstFormatter.formatToParts(now);
+  
+  const year = parts.find(p => p.type === 'year').value;
+  const month = parts.find(p => p.type === 'month').value;
+  const day = parts.find(p => p.type === 'day').value;
+  const hour = parts.find(p => p.type === 'hour').value;
+  const minute = parts.find(p => p.type === 'minute').value;
+  const second = parts.find(p => p.type === 'second').value;
+
+  const dateString = `${year}-${month}-${day}`;
+  const timeString = `${hour}-${minute}-${second}`;
 
   const dirPath = path.join(__dirname, 'data', dateString);
   const filePath = path.join(dirPath, `${timeString}.json`);
