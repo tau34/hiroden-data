@@ -2,9 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
 
-async function fetchData() {
+const data = JSON.parse(fs.readFileSync('data.json', 'utf-8'));
+
+async function fetchData(d, s) {
   const url = "https://location.hiroden.co.jp/sp/search.cgi";
-  const body = "d=80&b=s4.html";
+  const body = `d=${d}&b=${s}.html`;
 
   try {
     const response = await fetch(url, {
@@ -56,14 +58,28 @@ function parseHtml(html) {
   return trainData;
 }
 
+async function fetchAllData() {
+  let allData = [];
+  for (const d of data) {
+    let res = [];
+    for (const i of d[2]) {
+      const html = await fetchData(i[0], d[0]);
+      if (html) {
+        const parsed = parseHtml(html);
+        res.push({ id: i[0], name: i[1], data: parsed });
+      }
+    }
+    allData.push({ id: d[0], name: d[1], values: res });
+  }
+  return allData;
+}
+
 async function main() {
-  const html = await fetchData();
-  if (!html) {
+  const allData = await fetchAllData();
+  if (!allData) {
     console.log("No data fetched. Exiting.");
     return;
   }
-
-  const parsedData = parseHtml(html);
   
   // 日本時間を取得するための設定
   const now = new Date();
@@ -88,7 +104,7 @@ async function main() {
     fs.mkdirSync(dirPath, { recursive: true });
   }
 
-  fs.writeFileSync(filePath, JSON.stringify(parsedData, null, 2));
+  fs.writeFileSync(filePath, JSON.stringify(allData, null, 2));
   console.log(`Data saved to ${filePath}`);
 }
 
